@@ -14,30 +14,34 @@ func Unpack(s string) (string, error) {
 	var res strings.Builder
 	sr := []rune(s)
 	switch {
-	case len(sr) == 0:
+	case len(s) == 0:
 		return "", nil
-	case len(sr) == 1:
+	case len(s) == 1:
 		return string(sr[0]), nil
 	case unicode.IsDigit(sr[0]):
 		return "", ErrInvalidString
 	}
-	if !unicode.IsDigit(sr[0]) && !unicode.IsDigit(sr[1]) {
-		fmt.Fprint(&res, string(sr[0]))
-	}
-	i := 1
-	for i < len(sr)-1 {
+
+	var cr, pr rune
+
+	for _, v := range sr {
+		cr, pr = v, cr
 		switch {
-		case !unicode.IsDigit(sr[i]) && !unicode.IsDigit(sr[i+1]):
-			fmt.Fprint(&res, string(sr[i]))
-		case unicode.IsDigit(sr[i]) && !unicode.IsDigit(sr[i-1]) && !unicode.IsDigit(sr[i+1]):
-			n, _ := strconv.Atoi(string(sr[i]))
-			c := string(sr[i-1])
-			fmt.Fprint(&res, strings.Repeat(c, n))
-		case unicode.IsDigit(sr[i]) && unicode.IsDigit(sr[i+1]):
+		case unicode.IsDigit(pr) && unicode.IsDigit(cr):
 			return "", ErrInvalidString
+		case unicode.IsDigit(cr) && !unicode.IsDigit(pr):
+			n, err := strconv.Atoi(string(cr))
+			if err != nil {
+				fmt.Printf("Atoi error: %v\n", err)
+			}
+			c := string(pr)
+			res.WriteString(strings.Repeat(c, n))
+		case !unicode.IsDigit(cr) && !unicode.IsDigit(pr) && pr != 0:
+			res.WriteRune(pr)
 		}
-		i++
 	}
-	fmt.Fprint(&res, string(sr[len(sr)-1]))
+	if !unicode.IsDigit(sr[len(sr)-1]) {
+		res.WriteRune(cr)
+	}
 	return res.String(), nil
 }
