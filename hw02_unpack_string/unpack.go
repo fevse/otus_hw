@@ -22,26 +22,27 @@ func Unpack(s string) (string, error) {
 		return "", ErrInvalidString
 	}
 
-	var cr, pr rune
+	var pr rune
 
 	for _, v := range sr {
-		cr, pr = v, cr
 		switch {
-		case unicode.IsDigit(pr) && unicode.IsDigit(cr):
+		case unicode.IsDigit(pr) && unicode.IsDigit(v):
 			return "", ErrInvalidString
-		case unicode.IsDigit(cr) && !unicode.IsDigit(pr):
-			n, err := strconv.Atoi(string(cr))
+		case unicode.IsDigit(v) && !unicode.IsDigit(pr):
+			n, err := strconv.Atoi(string(v))
 			if err != nil {
 				fmt.Printf("Atoi error: %v\n", err)
+				return "", ErrInvalidString
 			}
 			c := string(pr)
 			res.WriteString(strings.Repeat(c, n))
-		case !unicode.IsDigit(cr) && !unicode.IsDigit(pr) && pr != 0:
+		case !unicode.IsDigit(v) && !unicode.IsDigit(pr) && pr != 0:
 			res.WriteRune(pr)
 		}
+		pr = v
 	}
 	if !unicode.IsDigit(sr[len(sr)-1]) {
-		res.WriteRune(cr)
+		res.WriteRune(sr[len(sr)-1])
 	}
 	return res.String(), nil
 }
