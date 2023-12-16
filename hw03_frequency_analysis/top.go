@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+type keyValue struct {
+	Key   string
+	Value int
+}
+
 func Top10(s string) []string {
 	ms := make(map[string]int)
 	sl := strings.Fields(s)
@@ -12,17 +17,10 @@ func Top10(s string) []string {
 		ms[v]++
 	}
 	res := mapToSortSlice(ms)
-	if len(res) > 10 {
-		return res[:10]
-	}
 	return res
 }
 
 func mapToSortSlice(m map[string]int) []string {
-	type keyValue struct {
-		Key   string
-		Value int
-	}
 	skv := make([]keyValue, 0, len(m))
 	for k, v := range m {
 		skv = append(skv, keyValue{k, v})
@@ -36,6 +34,9 @@ func mapToSortSlice(m map[string]int) []string {
 	res := make([]string, 0, len(skv))
 	for _, v := range skv {
 		res = append(res, v.Key)
+		if len(res) == 10 {
+			break
+		}
 	}
 	return res
 }
