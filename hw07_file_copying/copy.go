@@ -26,6 +26,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
+	defer rfile.Close()
 
 	s, err := rfile.Stat()
 	if err != nil {
@@ -40,6 +41,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
+	defer wfile.Close()
 
 	if limit == 0 {
 		limit = s.Size() - offset
@@ -47,29 +49,18 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		limit = s.Size() - offset
 	}
 
-	b := make([]byte, 1)
-
 	rfile.Seek(offset, io.SeekStart)
-	var n int64
 
 	bar := pb.New(int(limit))
 	bar.Start()
 
 	reader := bar.NewProxyReader(rfile)
 
-	for n < limit {
-		read, err := reader.Read(b)
-		n += int64(read)
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			return err
-		}
-		wfile.Write(b)
+	_, err = io.CopyN(wfile, reader, limit)
+	if err != nil {
+		return err
 	}
 	bar.Finish()
-	wfile.Close()
 
 	return nil
 }
