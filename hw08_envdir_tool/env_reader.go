@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -31,27 +31,46 @@ func ReadDir(dir string) (Environment, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		evs.NeedRemove = checkEnv(file.Name())
+
 		if i.Size() == 0 {
-			evs.NeedRemove = true
 			evs.Value = ""
 			env[file.Name()] = evs
 			continue
 		}
-		pathFile := fmt.Sprintf("%s/%s", dir, file.Name())
-		f, err := os.Open(pathFile)
+		pathFile := filepath.Join(dir, file.Name())
+		ev, err := openFile(pathFile)
 		if err != nil {
 			return nil, err
 		}
-		defer f.Close()
-		reader := bufio.NewReader(f)
-		fl, _, err := reader.ReadLine()
-		if err != nil {
-			return nil, err
-		}
-		ev := strings.TrimRight(string(bytes.ReplaceAll(fl, []byte{0}, []byte{10})), " ")
 		evs.Value = ev
-		evs.NeedRemove = true
 		env[file.Name()] = evs
 	}
 	return env, nil
+}
+
+func openFile(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	reader := bufio.NewReader(f)
+	fl, _, err := reader.ReadLine()
+	if err != nil {
+		return "", err
+	}
+	ev := strings.TrimRight(string(bytes.ReplaceAll(fl, []byte{0}, []byte{10})), " ") // byte{0} = NUL, byte{10} = \n
+	return ev, nil
+}
+
+func checkEnv(v string) bool {
+	osEnv := os.Environ()
+	for _, e := range osEnv {
+		if strings.Contains(e, v+"=") {
+			return true
+		}
+	}
+	return false
 }
