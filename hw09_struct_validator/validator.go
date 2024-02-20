@@ -52,44 +52,11 @@ func Validate(v interface{}) error {
 		if validate, ok := field.Tag.Lookup("validate"); ok {
 			x := strings.Split(validate, "|")
 			for i := range x {
-				s := strings.Split(x[i], ":")
-				switch field.Type.String() {
-				case "[]string":
-					for j := 0; j < value.Len(); j++ {
-						val := value.Index(j).String()
-
-						x, err := stringVal(s[0], s[1], val, field.Name)
-						if err != nil {
-							return err
-						}
-						ve = append(ve, x...)
-					}
-				case "string":
-					val := value.String()
-
-					x, err := stringVal(s[0], s[1], val, field.Name)
-					if err != nil {
-						return err
-					}
-					ve = append(ve, x...)
-				case "[]int":
-					for j := 0; j < value.Len(); j++ {
-						val := value.Int()
-						x, err := intVal(s[0], s[1], field.Name, val)
-						if err != nil {
-							return err
-						}
-						ve = append(ve, x...)
-					}
-				case "int":
-					val := value.Int()
-
-					x, err := intVal(s[0], s[1], field.Name, val)
-					if err != nil {
-						return err
-					}
-					ve = append(ve, x...)
+				x, err := checkFields(field, value, i, x)
+				if err != nil {
+					return err
 				}
+				ve = append(ve, x...)
 			}
 		}
 	}
@@ -97,6 +64,46 @@ func Validate(v interface{}) error {
 		return ve
 	}
 	return nil
+}
+
+func checkFields(field reflect.StructField, value reflect.Value, i int, x []string) (ValidationErrors, error) {
+	var ve ValidationErrors
+	s := strings.Split(x[i], ":")
+	switch field.Type.String() {
+	case "[]string":
+		for j := 0; j < value.Len(); j++ {
+			val := value.Index(j).String()
+			x, err := stringVal(s[0], s[1], val, field.Name)
+			if err != nil {
+				return nil, err
+			}
+			ve = append(ve, x...)
+		}
+	case "string":
+		val := value.String()
+		x, err := stringVal(s[0], s[1], val, field.Name)
+		if err != nil {
+			return nil, err
+		}
+		ve = append(ve, x...)
+	case "[]int":
+		for j := 0; j < value.Len(); j++ {
+			val := value.Int()
+			x, err := intVal(s[0], s[1], field.Name, val)
+			if err != nil {
+				return nil, err
+			}
+			ve = append(ve, x...)
+		}
+	case "int":
+		val := value.Int()
+		x, err := intVal(s[0], s[1], field.Name, val)
+		if err != nil {
+			return nil, err
+		}
+		ve = append(ve, x...)
+	}
+	return ve, nil
 }
 
 func stringVal(t, s, val, field string) (ValidationErrors, error) {
