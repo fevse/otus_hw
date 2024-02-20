@@ -57,142 +57,112 @@ func Validate(v interface{}) error {
 				case "[]string":
 					for j := 0; j < value.Len(); j++ {
 						val := value.Index(j).String()
-						switch s[0] {
-						case "len":
-							l, err := strconv.Atoi(s[1])
-							if err != nil {
-								return ErrorStrconvAtoi
-							}
-							if len(val) != l {
-								ve = append(ve, ValidationError{field.Name, ErrorStringLen})
-							}
-						case "in":
-							in := strings.Split(s[1], ",")
-							ok := false
-							for _, j := range in {
-								if j == val {
-									ok = true
-								}
-							}
-							if !ok {
-								ve = append(ve, ValidationError{field.Name, ErrorStringIn})
-							}
-						case "regexp":
-							re, err := regexp.Compile(s[1])
-							if err != nil {
-								return ErrorRegexp
-							}
-							if !re.MatchString(val) {
-								ve = append(ve, ValidationError{field.Name, ErrorStringRegexp})
-							}
+
+						x, err := stringVal(s[0], s[1], val, field.Name)
+						if err != nil {
+							return err
 						}
+						ve = append(ve, x...)
 					}
 				case "string":
 					val := value.String()
-					switch s[0] {
-					case "len":
-						l, err := strconv.Atoi(s[1])
-						if err != nil {
-							return ErrorStrconvAtoi
-						}
-						if len(val) != l {
-							ve = append(ve, ValidationError{field.Name, ErrorStringLen})
-						}
-					case "in":
-						in := strings.Split(s[1], ",")
-						ok := false
-						for _, j := range in {
-							if j == val {
-								ok = true
-							}
-						}
-						if !ok {
-							ve = append(ve, ValidationError{field.Name, ErrorStringIn})
-						}
-					case "regexp":
-						re, err := regexp.Compile(s[1])
-						if err != nil {
-							return ErrorRegexp
-						}
-						if !re.MatchString(val) {
-							ve = append(ve, ValidationError{field.Name, ErrorStringRegexp})
-						}
+
+					x, err := stringVal(s[0], s[1], val, field.Name)
+					if err != nil {
+						return err
 					}
+					ve = append(ve, x...)
 				case "[]int":
 					for j := 0; j < value.Len(); j++ {
 						val := value.Int()
-						switch s[0] {
-						case "in":
-							in := strings.Split(s[1], ",")
-							ok := false
-							for _, j := range in {
-								if j == strconv.Itoa(int(val)) {
-									ok = true
-								}
-							}
-							if !ok {
-								ve = append(ve, ValidationError{field.Name, ErrorIntIn})
-							}
-						case "max":
-							max, err := strconv.Atoi(s[1])
-							if err != nil {
-								fmt.Println(s[1])
-								return ErrorStrconvAtoi
-							}
-							if val > int64(max) {
-								ve = append(ve, ValidationError{field.Name, ErrorIntMax})
-							}
-						case "min":
-							min, err := strconv.Atoi(s[1])
-							if err != nil {
-								fmt.Println(s[1])
-								return ErrorStrconvAtoi
-							}
-							if val < int64(min) {
-								ve = append(ve, ValidationError{field.Name, ErrorIntMin})
-							}
+						x, err := intVal(s[0], s[1], field.Name, val)
+						if err != nil {
+							return err
 						}
+						ve = append(ve, x...)
 					}
 				case "int":
 					val := value.Int()
-					switch s[0] {
-					case "in":
-						in := strings.Split(s[1], ",")
-						ok := false
-						for _, j := range in {
-							if j == strconv.Itoa(int(val)) {
-								ok = true
-							}
-						}
-						if !ok {
-							ve = append(ve, ValidationError{field.Name, ErrorIntIn})
-						}
-					case "max":
-						max, err := strconv.Atoi(s[1])
-						if err != nil {
-							fmt.Println(s[1])
-							return ErrorStrconvAtoi
-						}
-						if val > int64(max) {
-							ve = append(ve, ValidationError{field.Name, ErrorIntMax})
-						}
-					case "min":
-						min, err := strconv.Atoi(s[1])
-						if err != nil {
-							fmt.Println(s[1])
-							return ErrorStrconvAtoi
-						}
-						if val < int64(min) {
-							ve = append(ve, ValidationError{field.Name, ErrorIntMin})
-						}
+
+					x, err := intVal(s[0], s[1], field.Name, val)
+					if err != nil {
+						return err
 					}
+					ve = append(ve, x...)
 				}
 			}
 		}
 	}
-
 	if len(ve) > 0 {
 		return ve
 	}
 	return nil
+}
+
+func stringVal(t, s, val, field string) (ValidationErrors, error) {
+	var ve ValidationErrors
+	switch t {
+	case "len":
+		l, err := strconv.Atoi(s)
+		if err != nil {
+			return nil, ErrorStrconvAtoi
+		}
+		if len(val) != l {
+			ve = append(ve, ValidationError{field, ErrorStringLen})
+		}
+	case "in":
+		in := strings.Split(s, ",")
+		ok := false
+		for _, j := range in {
+			if j == val {
+				ok = true
+			}
+		}
+		if !ok {
+			ve = append(ve, ValidationError{field, ErrorStringIn})
+		}
+	case "regexp":
+		re, err := regexp.Compile(s)
+		if err != nil {
+			return nil, ErrorRegexp
+		}
+		if !re.MatchString(val) {
+			ve = append(ve, ValidationError{field, ErrorStringRegexp})
+		}
+	}
+	return ve, nil
+}
+
+func intVal(t, s, field string, val int64) (ValidationErrors, error) {
+	var ve ValidationErrors
+	switch t {
+	case "in":
+		in := strings.Split(s, ",")
+		ok := false
+		for _, j := range in {
+			if j == strconv.Itoa(int(val)) {
+				ok = true
+			}
+		}
+		if !ok {
+			ve = append(ve, ValidationError{field, ErrorIntIn})
+		}
+	case "max":
+		max, err := strconv.Atoi(s)
+		if err != nil {
+			return nil, ErrorStrconvAtoi
+		}
+		if val > int64(max) {
+			ve = append(ve, ValidationError{field, ErrorIntMax})
+		}
+	case "min":
+		min, err := strconv.Atoi(s)
+		if err != nil {
+			return nil, ErrorStrconvAtoi
+		}
+		if val < int64(min) {
+			ve = append(ve, ValidationError{field, ErrorIntMin})
+		}
+	}
+	return ve, nil
 }
