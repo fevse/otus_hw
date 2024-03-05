@@ -29,6 +29,9 @@ func TestTelnetClient(t *testing.T) {
 			timeout, err := time.ParseDuration("10s")
 			require.NoError(t, err)
 
+			clientErr := NewTelnetClient("", timeout, io.NopCloser(in), out)
+			require.Equal(t, "dial tcp: missing address", clientErr.Connect().Error())
+
 			client := NewTelnetClient(l.Addr().String(), timeout, io.NopCloser(in), out)
 			require.NoError(t, client.Connect())
 			defer func() { require.NoError(t, client.Close()) }()
