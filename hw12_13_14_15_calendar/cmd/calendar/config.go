@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/BurntSushi/toml"
 )
 
@@ -36,7 +34,6 @@ func NewConfig() (c Config, err error) {
 	if err != nil {
 		return Config{}, err
 	}
-	fmt.Println("Configuration reading completed successfully")
 	return
 }
 

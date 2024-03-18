@@ -1,5 +1,14 @@
 [logger]
 level = "INFO"
 
+[db]
+type = "memorystorage"
+dsn = "host=localhost port=5432 user=fevse password=fevse dbname=storage sslmode=verify-full"
+
+[httpserver]
+host = "localhost"
+port = "8080"
+
+
 # TODO
 # ...
