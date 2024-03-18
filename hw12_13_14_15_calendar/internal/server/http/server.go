@@ -39,7 +39,7 @@ func (s *Server) Start(ctx context.Context) error {
 		w.Write([]byte("Hello, user!"))
 	})
 	s.Server.Handler = s.loggingMiddleware(mux)
-	s.Logger.Info("Server is running")
+	s.Logger.Info("server is running...")
 	if err := s.Server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("server err: %v", err)
 	}
