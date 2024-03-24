@@ -9,7 +9,7 @@ import (
 
 type Storage struct {
 	// TODO
-	mu sync.RWMutex //nolint:unused
+	mu sync.RWMutex 
 	events storage.Events
 }
 
@@ -91,4 +91,3 @@ func (s *Storage) ListOfEventsMonth (date time.Time) storage.Events {
 	}
 	return list
 }
-// TODO
