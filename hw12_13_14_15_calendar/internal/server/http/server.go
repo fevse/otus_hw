@@ -35,11 +35,11 @@ func NewServer(logger Logger, app Application, host, port string) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	// TODO
 	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, user!"))
 	})
 	s.Server.Handler = s.loggingMiddleware(mux)
-	s.Logger.Info("server is running...")
+	s.Logger.Info("server is running: " + s.Server.Addr)
 	if err := s.Server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("server err: %v", err)
 	}
