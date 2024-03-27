@@ -1,20 +1,27 @@
 package logger
 
-import "fmt"
+import (
+	"log"
+	"os"
+)
 
-type Logger struct { // TODO
+type Logger struct { 
+	infoLog *log.Logger
+	errorLog *log.Logger
 }
 
 func New(level string) *Logger {
-	return &Logger{}
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	return &Logger{infoLog: infoLog, errorLog: errorLog}
 }
 
 func (l Logger) Info(msg string) {
-	fmt.Println(msg)
+	l.infoLog.Println(msg)
 }
 
 func (l Logger) Error(msg string) {
-	// TODO
+	l.errorLog.Fatal(msg)
 }
 
 // TODO
