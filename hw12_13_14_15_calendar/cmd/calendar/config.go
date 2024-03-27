@@ -29,7 +29,7 @@ type DBConf struct {
 	DSN string
 }
 
-func NewConfig() (c Config, err error) {
+func NewConfig(configFile string) (c Config, err error) {
 	_, err = toml.DecodeFile(configFile, &c)
 	if err != nil {
 		return Config{}, err
