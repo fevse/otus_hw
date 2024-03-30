@@ -3,16 +3,17 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlstorage "github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/storage/storageconf"
 )
 
 var configFile string
@@ -28,20 +29,15 @@ func main() {
 		printVersion()
 		return
 	}
-	config, err := NewConfig(configFile)
+	config, err := config.NewConfig(configFile)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	logg := logger.New(config.Logger.Level)
-	var storage app.Storage
-	logg.Info("DB is used "+ config.DB.Type)
-	switch config.DB.Type {
-	case "memorystorage":
-		storage = memorystorage.New()
-	case "sql":
-		storage = sqlstorage.New()
-	}
-	
+
+	storage := storageconf.ChangeStorage(config, logg)
+
 	calendar := app.New(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar, config.HTTPServer.Host, config.HTTPServer.Port)

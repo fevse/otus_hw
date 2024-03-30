@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"github.com/BurntSushi/toml"
@@ -9,9 +9,9 @@ import (
 // при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
 type Config struct {
 	// TODO
-	Logger 		LoggerConf
-	HTTPServer 	HTTPconf
-	DB 			DBConf
+	Logger     LoggerConf
+	HTTPServer HTTPconf
+	DB         DBConf
 }
 
 type LoggerConf struct {
@@ -26,7 +26,7 @@ type HTTPconf struct {
 
 type DBConf struct {
 	Type string
-	DSN string
+	DSN  string
 }
 
 func NewConfig(configFile string) (c Config, err error) {
@@ -34,7 +34,7 @@ func NewConfig(configFile string) (c Config, err error) {
 	if err != nil {
 		return Config{}, err
 	}
-	return
+	return c, nil
 }
 
 // TODO

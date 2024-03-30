@@ -5,12 +5,12 @@ import (
 	"os"
 )
 
-type Logger struct { 
-	infoLog *log.Logger
+type Logger struct {
+	infoLog  *log.Logger
 	errorLog *log.Logger
 }
 
-func New(level string) *Logger {
+func New(_ string) *Logger {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	return &Logger{infoLog: infoLog, errorLog: errorLog}

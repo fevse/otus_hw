@@ -9,19 +9,19 @@ import (
 
 type Storage struct {
 	// TODO
-	mu sync.RWMutex 
+	mu     sync.RWMutex
 	events storage.Events
 }
 
 func New() *Storage {
 	events := make(storage.Events)
 	return &Storage{
-		mu: sync.RWMutex{},
+		mu:     sync.RWMutex{},
 		events: events,
 	}
 }
 
-func (s *Storage) CreateEvent (event *storage.Event) error {
+func (s *Storage) CreateEvent(event *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -32,10 +32,10 @@ func (s *Storage) CreateEvent (event *storage.Event) error {
 	return storage.ErrorEventAlreadyExist
 }
 
-func (s *Storage) UpdateEvent (id int64, event *storage.Event) error {
+func (s *Storage) UpdateEvent(id int64, event *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if _, ok := s.events[id]; !ok {
 		return storage.ErrorEventNotFound
 	}
@@ -44,7 +44,7 @@ func (s *Storage) UpdateEvent (id int64, event *storage.Event) error {
 	return nil
 }
 
-func (s *Storage) DeleteEvent (id int64) error {
+func (s *Storage) DeleteEvent(id int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -56,36 +56,42 @@ func (s *Storage) DeleteEvent (id int64) error {
 	return nil
 }
 
-func (s *Storage) ListOfEventsDay (date time.Time) storage.Events {
+func (s *Storage) ListOfEventsDay(date time.Time) storage.Events {
 	list := make(storage.Events)
+	y1, m1, d1 := date.Date()
 	for id, event := range s.events {
-		if event.Date.Year() == date.Year() && 
-		event.Date.Month() == date.Month() &&
-		event.Date.Day() == date.Day() {
+		y2, m2, d2 := event.Date.Date()
+		if y1 == y2 &&
+			m1 == m2 &&
+			d1 == d2 {
 			list[id] = event
 		}
 	}
 	return list
 }
 
-func (s *Storage) ListOfEventsWeek (date time.Time) storage.Events {
+func (s *Storage) ListOfEventsWeek(date time.Time) storage.Events {
 	list := make(storage.Events)
+	y1, m1, d1 := date.Date()
 	for id, event := range s.events {
-		if event.Date.Year() == date.Year() && 
-		event.Date.Month() == date.Month() &&
-		event.Date.Day() >= date.Day() &&
-		event.Date.Day() <= date.Day()+7 {
+		y2, m2, d2 := event.Date.Date()
+		if y1 == y2 &&
+			m1 == m2 &&
+			d1 >= d2 &&
+			d1+7 <= d2 {
 			list[id] = event
 		}
 	}
 	return list
 }
 
-func (s *Storage) ListOfEventsMonth (date time.Time) storage.Events {
+func (s *Storage) ListOfEventsMonth(date time.Time) storage.Events {
 	list := make(storage.Events)
+	y1, m1, _ := date.Date()
 	for id, event := range s.events {
-		if event.Date.Year() == date.Year() && 
-		event.Date.Month() == date.Month() {
+		y2, m2, _ := event.Date.Date()
+		if y1 == y2 &&
+			m1 == m2 {
 			list[id] = event
 		}
 	}
