@@ -36,7 +36,10 @@ func (s *Server) Start(ctx context.Context) error {
 	// TODO
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte("Hello, user!"))
+		_, err := w.Write([]byte("Hello, user!"))
+		if err != nil {
+			s.Logger.Error(err.Error())
+		}
 	})
 	s.Server.Handler = s.loggingMiddleware(mux)
 	s.Logger.Info("server is running: " + s.Server.Addr)
