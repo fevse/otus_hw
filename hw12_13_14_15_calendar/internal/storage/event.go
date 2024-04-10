@@ -14,7 +14,7 @@ type Event struct {
 	ID          int64
 	Title       string
 	Date        time.Time
-	Duration    time.Duration
+	Duration    int64
 	Description string
 	UserID      int64
 	Reminder    time.Time

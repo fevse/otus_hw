@@ -27,6 +27,7 @@ func (s *Storage) CreateEvent(event *storage.Event) error {
 
 	if _, ok := s.events[event.ID]; !ok {
 		s.events[event.ID] = event
+		return nil
 	}
 
 	return storage.ErrorEventAlreadyExist
@@ -56,44 +57,48 @@ func (s *Storage) DeleteEvent(id int64) error {
 	return nil
 }
 
-func (s *Storage) ListOfEventsDay(date time.Time) storage.Events {
-	list := make(storage.Events)
+func (s *Storage) List() (events storage.Events) {
+	return s.events
+}
+
+func (s *Storage) ListOfEventsDay(date time.Time) (events storage.Events, err error) {
+	events = make(storage.Events)
 	y1, m1, d1 := date.Date()
 	for id, event := range s.events {
 		y2, m2, d2 := event.Date.Date()
 		if y1 == y2 &&
 			m1 == m2 &&
 			d1 == d2 {
-			list[id] = event
+				events[id] = event
 		}
 	}
-	return list
+	return events, nil
 }
 
-func (s *Storage) ListOfEventsWeek(date time.Time) storage.Events {
-	list := make(storage.Events)
+func (s *Storage) ListOfEventsWeek(date time.Time) (events storage.Events, err error) {
+	events = make(storage.Events)
 	y1, m1, d1 := date.Date()
 	for id, event := range s.events {
 		y2, m2, d2 := event.Date.Date()
 		if y1 == y2 &&
 			m1 == m2 &&
-			d1 >= d2 &&
-			d1+7 <= d2 {
-			list[id] = event
+			d1 <= d2 &&
+			d1+7 >= d2 {
+				events[id] = event
 		}
 	}
-	return list
+	return events, nil
 }
 
-func (s *Storage) ListOfEventsMonth(date time.Time) storage.Events {
-	list := make(storage.Events)
+func (s *Storage) ListOfEventsMonth(date time.Time) (events storage.Events, err error) {
+	events = make(storage.Events)
 	y1, m1, _ := date.Date()
 	for id, event := range s.events {
 		y2, m2, _ := event.Date.Date()
 		if y1 == y2 &&
 			m1 == m2 {
-			list[id] = event
+			events[id] = event
 		}
 	}
-	return list
+	return events, nil
 }
