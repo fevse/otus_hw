@@ -1,6 +1,8 @@
 package app
 
 import (
+	"time"
+
 	"github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -18,6 +20,10 @@ type Storage interface { // TODO
 	CreateEvent(*storage.Event) error
 	UpdateEvent(int64, *storage.Event) error
 	DeleteEvent(int64) error
+	List() storage.Events
+	ListOfEventsDay(time.Time) (storage.Events, error)
+	ListOfEventsWeek(time.Time) (storage.Events, error)
+	ListOfEventsMonth(time.Time) (storage.Events, error)
 }
 
 func New(logger Logger, storage Storage) *App {
