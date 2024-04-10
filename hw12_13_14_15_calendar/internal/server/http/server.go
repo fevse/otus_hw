@@ -7,40 +7,44 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/fevse/otus_hw/hw12_13_14_15_calendar/internal/app"
 )
 
-type Server struct { // TODO
+type Server struct {
 	Server *http.Server
 	Logger Logger
+	App *app.App
 }
 
-type Logger interface { // TODO
+type Logger interface {
 	Info(string)
 	Error(string)
 }
 
-type Application interface { // TODO
-}
-
-func NewServer(logger Logger, _ Application, host, port string) *Server {
+func NewServer(logger Logger, app *app.App, host, port string) *Server {
 	return &Server{
 		Server: &http.Server{
 			Addr:              net.JoinHostPort(host, port),
 			ReadHeaderTimeout: 2 * time.Second,
 		},
+		App: app,
 		Logger: logger,
 	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	// TODO
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		_, err := w.Write([]byte("Hello, user!"))
-		if err != nil {
-			s.Logger.Error(err.Error())
-		}
-	})
+
+	mux.Handle("GET /", s.index())
+	mux.Handle("POST /create/", s.Create())
+	mux.Handle("POST /update/", s.Update())
+	mux.Handle("POST /delete/", s.Delete())
+	mux.Handle("GET /list/", s.Show())
+	mux.Handle("GET /day/", s.ShowEventDay())
+	mux.Handle("GET /week/", s.ShowEventWeek())
+	mux.Handle("GET /month/", s.ShowEventMonth())
+
 	s.Server.Handler = s.loggingMiddleware(mux)
 	s.Logger.Info("server is running: " + s.Server.Addr)
 	if err := s.Server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -51,8 +55,5 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	// TODO
 	return s.Server.Shutdown(ctx)
 }
-
-// TODO
