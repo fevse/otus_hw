@@ -40,7 +40,10 @@ func (s *Server) Create() http.HandlerFunc {
 		if err != nil {
 			s.App.Logger.Error(err.Error())
 		}
-		w.Write([]byte(event.Title))
+		_, err = w.Write([]byte(event.Title))
+		if err != nil {
+			s.App.Logger.Error(err.Error())
+		}
 	}
 }
 
@@ -66,7 +69,10 @@ func (s *Server) Update() http.HandlerFunc {
 		if err != nil {
 			s.App.Logger.Error(err.Error())
 		}
-		w.Write([]byte(event.Title))
+		_, err = w.Write([]byte(event.Title))
+		if err != nil {
+			s.App.Logger.Error(err.Error())
+		}
 	}
 }
 
@@ -98,7 +104,10 @@ func (s *Server) Delete() http.HandlerFunc {
 func (s *Server) Show() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		events := s.App.Storage.List()
-		w.Write([]byte("List: \n"))
+		_, err := w.Write([]byte("List: \n"))
+		if err != nil {
+			s.App.Logger.Error(err.Error())
+		}
 		for _, v := range events {
 			_, err := w.Write([]byte("#" + v.Title + "\n"))
 			if err != nil {
