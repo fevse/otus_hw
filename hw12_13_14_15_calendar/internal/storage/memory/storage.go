@@ -57,8 +57,8 @@ func (s *Storage) DeleteEvent(id int64) error {
 	return nil
 }
 
-func (s *Storage) List() (events storage.Events) {
-	return s.events
+func (s *Storage) List() (storage.Events, error) {
+	return s.events, nil
 }
 
 func (s *Storage) ListOfEventsDay(date time.Time) (events storage.Events, err error) {

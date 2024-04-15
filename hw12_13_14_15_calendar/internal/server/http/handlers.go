@@ -103,8 +103,11 @@ func (s *Server) Delete() http.HandlerFunc {
 
 func (s *Server) Show() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		events := s.App.Storage.List()
-		_, err := w.Write([]byte("List: \n"))
+		events, err := s.App.Storage.List()
+		if err != nil {
+			s.App.Logger.Error(err.Error())
+		} 
+		_, err = w.Write([]byte("List: \n"))
 		if err != nil {
 			s.App.Logger.Error(err.Error())
 		}

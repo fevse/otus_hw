@@ -20,7 +20,7 @@ type Storage interface { // TODO
 	CreateEvent(*storage.Event) error
 	UpdateEvent(int64, *storage.Event) error
 	DeleteEvent(int64) error
-	List() storage.Events
+	List() (storage.Events, error)
 	ListOfEventsDay(time.Time) (storage.Events, error)
 	ListOfEventsWeek(time.Time) (storage.Events, error)
 	ListOfEventsMonth(time.Time) (storage.Events, error)
