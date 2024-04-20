@@ -8,6 +8,7 @@ type Config struct {
 	// TODO
 	Logger     LoggerConf
 	HTTPServer HTTPconf
+	GRPCServer GRPCconf
 	DB         DBConf
 }
 
@@ -19,6 +20,11 @@ type LoggerConf struct {
 type HTTPconf struct {
 	Host string
 	Port string
+}
+
+type GRPCconf struct {
+	Network string
+	Address string
 }
 
 type DBConf struct {
