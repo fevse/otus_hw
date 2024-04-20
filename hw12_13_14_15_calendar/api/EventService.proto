@@ -1,7 +1,44 @@
 syntax = "proto3";
 
 package event;
+option go_package = "./pb/;pb";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service Calendar {
+    rpc Create(Event) returns (google.protobuf.Empty) {}
+	rpc Update(IDEvent) returns (google.protobuf.Empty) {}
+	rpc Delete(ID) returns (google.protobuf.Empty) {}
+	rpc Show(google.protobuf.Empty) returns (Events) {}
+	rpc ShowEventDay(Date) returns (Events) {}
+	rpc ShowEventWeek(Date) returns (Events) {}
+	rpc ShowEventMonth(Date) returns (Events) {}
+}
 
 message Event {
-    // TODO
+    int64 ID = 1;
+	string Title = 2;
+	google.protobuf.Timestamp Date = 3;
+	int64 Duration = 4;
+	string Description = 5;
+	int64 UserID = 6;
+	google.protobuf.Timestamp Reminder = 7;
+}
+
+message IDEvent {
+    int64 ID = 1;
+    Event Event = 2;
+}
+
+message ID {
+    int64 ID = 1;
+}
+
+message Date {
+    google.protobuf.Timestamp Date = 1;
+}
+
+message Events {
+    map<int64, Event> Events = 1;
 }
