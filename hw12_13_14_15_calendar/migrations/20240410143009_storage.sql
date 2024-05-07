@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS events (
     id    		SERIAL PRIMARY KEY,
 	title 		VARCHAR(255) NOT NULL,
 	date 		DATE,
-	duration 	DATE,
+	duration 	INT,
 	description TEXT,
 	userid 		INT,
 	reminder 	DATE

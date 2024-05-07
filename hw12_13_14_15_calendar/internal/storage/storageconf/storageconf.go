@@ -9,12 +9,12 @@ import (
 
 func ChangeStorage(config config.Config, logg app.Logger) app.Storage {
 	var storage app.Storage
-	logg.Info("DB is used " + config.DB.Type)
 	switch config.DB.Type {
 	case "memorystorage":
 		storage = memorystorage.New()
 	case "sql":
-		storage = sqlstorage.New()
+		storage = sqlstorage.New(config)
 	}
+	logg.Info("DB is used " + config.DB.Type)
 	return storage
 }
